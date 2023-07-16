@@ -1,37 +1,34 @@
 package com.example.productservice.business.command.api;
 
+import com.example.productservice.business.BaseProductController;
+import jakarta.validation.Valid;
 import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.queryhandling.QueryGateway;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
 
 @RestController
-@RequestMapping("/api/products")
-public class ProductsCommandController {
+public class ProductsCommandController extends BaseProductController {
 
-	private CommandGateway commandGateway;
 
-	@Autowired
-	public ProductsCommandController(CommandGateway commandGateway){
-		this.commandGateway =  commandGateway;
+	public ProductsCommandController(CommandGateway commandGateway, QueryGateway queryGateway) {
+		super(commandGateway, queryGateway);
 	}
-
 
 	@GetMapping("helloProduct")
 	public String getProducts() {
 		return "Hello Product";
 	}
 
-	@PostMapping("/add")
-	public String createProduct(@RequestBody ProductDTO productDTO){
+	@PostMapping
+	public String createProduct (@Valid @RequestBody CreateProductRestModel createProductRestModel){
 		CreateProductCommand createProductCommand = new CreateProductCommand();
-		productDTO.setProductId(UUID.randomUUID().toString());
+		createProductRestModel.setProductId(UUID.randomUUID().toString());
 
-		BeanUtils.copyProperties(productDTO, createProductCommand);
+		BeanUtils.copyProperties(createProductRestModel, createProductCommand);
 
 		String  productId = commandGateway.sendAndWait(createProductCommand);
 		return productId;

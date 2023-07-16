@@ -1,11 +1,12 @@
-package com.example.productservice.business.command.api;
+package com.example.productservice.business.query.api;
+
 
 import lombok.Data;
 
 import java.math.BigDecimal;
 
 @Data
-public class ProductDTO {
+public class ProductRestModel {
 
     private String productId;
     private String title;
