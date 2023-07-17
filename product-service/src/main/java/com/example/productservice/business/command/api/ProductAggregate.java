@@ -27,7 +27,7 @@ public class ProductAggregate {
 
     // Constructor tells Axon that this class has both @Aggregate + many @Command Handler
     @CommandHandler
-    public ProductAggregate (CreateProductCommand createProductCommand){
+    public ProductAggregate (CreateProductCommand createProductCommand) throws Exception {
         ProductCreateEvent productCreateEvent = new ProductCreateEvent();
         BeanUtils.copyProperties(createProductCommand, productCreateEvent);
         AggregateLifecycle.apply(productCreateEvent);

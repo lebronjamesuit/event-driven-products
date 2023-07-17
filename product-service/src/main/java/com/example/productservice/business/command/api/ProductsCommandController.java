@@ -24,7 +24,7 @@ public class ProductsCommandController extends BaseProductController {
 	}
 
 	@PostMapping
-	public String createProduct (@Valid @RequestBody CreateProductRestModel createProductRestModel){
+	public String createProduct (@Valid @RequestBody CreateProductRestModel createProductRestModel) throws Exception {
 		CreateProductCommand createProductCommand = new CreateProductCommand();
 		createProductRestModel.setProductId(UUID.randomUUID().toString());
 
