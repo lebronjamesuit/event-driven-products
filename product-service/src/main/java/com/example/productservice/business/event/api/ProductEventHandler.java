@@ -22,7 +22,7 @@ public class ProductEventHandler {
         BeanUtils.copyProperties(productCreateEvent, entity);
         productRepo.save(entity);
 
-        throw new ArrayIndexOutOfBoundsException("Minh oi co len, excepted go to public class CommonEventExceptionHandler implements ListenerInvocationErrorHandler");
+        throw new ArrayIndexOutOfBoundsException("FORCE THROW ");
     }
 
     // Catch exception, log it, then continue the execution.
