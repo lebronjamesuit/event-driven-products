@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.Setter;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
-
+@Data
 @Builder
 public class CreateOrderCommand {
 

@@ -20,13 +20,13 @@ public class OrderCommandController {
     }
 
     @PostMapping
-    public String createOrder(@RequestParam OrderRestModel orderRestModel){
+    public String createOrder(@RequestBody OrderRestModel orderRestModel){
         CreateOrderCommand createOrderCommand   = CreateOrderCommand.builder().orderId(UUID.randomUUID().toString())
                 .userId(orderRestModel.getUserId())
                 .productId(orderRestModel.getProductId())
                 .quantity(orderRestModel.getQuantity())
                 .addressId(orderRestModel.getAddressId())
-                .orderStatus(orderRestModel.getOrderStatus();
+                .orderStatus(orderRestModel.getOrderStatus()).build();
 
         String resultId = commandGateway.sendAndWait(createOrderCommand);
 
