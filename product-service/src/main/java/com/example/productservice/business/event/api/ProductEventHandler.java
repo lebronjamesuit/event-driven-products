@@ -22,7 +22,8 @@ public class ProductEventHandler {
         BeanUtils.copyProperties(productCreateEvent, entity);
         productRepo.save(entity);
 
-        throw new ArrayIndexOutOfBoundsException("FORCE THROW ");
+        // For Demo Rollback Transaction.
+       // throw new ArrayIndexOutOfBoundsException("FORCE THROW ");
     }
 
     // Catch exception, log it, then continue the execution.
