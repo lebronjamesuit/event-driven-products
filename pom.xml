@@ -20,6 +20,7 @@
         <module>netflix-eureka-server</module>
         <module>api-gateway-v2</module>
         <module>product-service</module>
+        <module>orders-service</module>
     </modules>
 
     <properties>

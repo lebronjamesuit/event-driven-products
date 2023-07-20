@@ -12,7 +12,7 @@
     <artifactId>orders-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>orders-service</name>
-    <description>Demo project for Spring Boot</description>
+    <description>Order service</description>
     <properties>
         <java.version>17</java.version>
         <spring-cloud.version>2022.0.3</spring-cloud.version>
