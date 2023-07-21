@@ -21,6 +21,7 @@
         <module>api-gateway-v2</module>
         <module>product-service</module>
         <module>orders-service</module>
+        <module>payment-service</module>
     </modules>
 
     <properties>
