@@ -6,12 +6,13 @@ import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+
 import java.sql.Timestamp;
 
 @Data
 @Entity
 @Table(name = "order")
-public class OrderEntity {
+public class OrderEntity extends BaseEntity{
 
     @Id
     private String orderId;
@@ -23,11 +24,5 @@ public class OrderEntity {
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
-    @CreationTimestamp
-    @Column(updatable = false)
-    private Timestamp createdDate;
-
-    @UpdateTimestamp
-    private Timestamp lastModifiedDate;
 
 }

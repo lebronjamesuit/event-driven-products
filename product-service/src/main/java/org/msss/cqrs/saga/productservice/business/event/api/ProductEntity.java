@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Data
 @Entity
 @Table(name = "products")
-public class ProductEntity {
+public class ProductEntity extends BaseEntity {
 
     @Id
     @Column(unique = true)

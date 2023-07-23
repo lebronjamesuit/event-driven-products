@@ -6,11 +6,12 @@ import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
+
 @RequiredArgsConstructor
 @Data
 @Entity
 @Table(name = "payments")
-public class PaymentEntity {
+public class PaymentEntity extends BaseEntity {
 
     @Id
     private String paymentId;
