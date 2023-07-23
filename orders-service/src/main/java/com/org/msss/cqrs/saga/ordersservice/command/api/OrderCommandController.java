@@ -21,7 +21,8 @@ public class OrderCommandController {
 
     @PostMapping
     public String createOrder(@RequestBody OrderRestModel orderRestModel){
-        CreateOrderCommand createOrderCommand   = CreateOrderCommand.builder().orderId(UUID.randomUUID().toString())
+        CreateOrderCommand createOrderCommand   = CreateOrderCommand.builder()
+                .orderId("order"+UUID.randomUUID().toString())
                 .userId(orderRestModel.getUserId())
                 .productId(orderRestModel.getProductId())
                 .quantity(orderRestModel.getQuantity())

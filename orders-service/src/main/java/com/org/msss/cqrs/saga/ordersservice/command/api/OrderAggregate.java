@@ -1,6 +1,7 @@
 package com.org.msss.cqrs.saga.ordersservice.command.api;
 
 
+import com.org.msss.cqrs.saga.ordersservice.event.api.OrderApproveEvent;
 import com.org.msss.cqrs.saga.ordersservice.event.api.OrderCreateEvent;
 import lombok.Data;
 import org.axonframework.commandhandling.CommandHandler;
@@ -26,6 +27,7 @@ public class OrderAggregate {
 
     public OrderAggregate(){};
 
+    // Handle Create Order
     @CommandHandler
     public OrderAggregate (CreateOrderCommand createOrderCommand){
         //OrderCreateEvent
@@ -42,6 +44,20 @@ public class OrderAggregate {
         this.quantity = orderCreateEvent.getQuantity();
         this.addressId = orderCreateEvent.getAddressId();
         this.orderStatus = orderCreateEvent.getOrderStatus();
+    }
+
+
+    // Handle Approve Order
+    @CommandHandler
+    public void handleApproveOrder(ApproveOrderCommand approveOrderCommand) {
+        OrderApproveEvent orderApproveEvent = new OrderApproveEvent(approveOrderCommand.getOrderId());
+        AggregateLifecycle.apply(orderApproveEvent);
+    }
+
+    @EventSourcingHandler
+    public void on(OrderApproveEvent orderApproveEvent){
+        this.orderId =  orderApproveEvent.getOrderId();
+        this.orderStatus = orderApproveEvent.getOrderStatus();
     }
 
 }

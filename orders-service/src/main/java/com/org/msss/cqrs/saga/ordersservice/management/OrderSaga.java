@@ -1,5 +1,7 @@
 package com.org.msss.cqrs.saga.ordersservice.management;
 
+import com.org.msss.cqrs.saga.ordersservice.command.api.ApproveOrderCommand;
+import com.org.msss.cqrs.saga.ordersservice.event.api.OrderApproveEvent;
 import com.org.msss.cqrs.saga.ordersservice.event.api.OrderCreateEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandCallback;
@@ -10,12 +12,15 @@ import org.axonframework.commandhandling.distributed.CommandDispatchException;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.messaging.Message;
 import org.axonframework.messaging.responsetypes.ResponseTypes;
+import org.axonframework.modelling.saga.EndSaga;
 import org.axonframework.modelling.saga.SagaEventHandler;
+import org.axonframework.modelling.saga.SagaLifecycle;
 import org.axonframework.modelling.saga.StartSaga;
 import org.axonframework.queryhandling.QueryGateway;
 import org.axonframework.spring.stereotype.Saga;
 import org.msss.cqrs.saga.sharedcommon.command.ProcessPaymentCommand;
 import org.msss.cqrs.saga.sharedcommon.command.ReserveProductCommand;
+import org.msss.cqrs.saga.sharedcommon.event.PaymentProcessEvent;
 import org.msss.cqrs.saga.sharedcommon.event.ProductReserveEvent;
 import org.msss.cqrs.saga.sharedcommon.payment.UserPayment;
 import org.msss.cqrs.saga.sharedcommon.query.FetchUserPaymentDetailsQuery;
@@ -39,7 +44,7 @@ public class OrderSaga {
 
     @StartSaga
     @SagaEventHandler(associationProperty = "orderId")
-    public void orderCreateEvent(OrderCreateEvent orderCreateEvent) {
+    public void handle(OrderCreateEvent orderCreateEvent) {
         // After placed order ok, roi sao nua?
         // Reserve product -> update quantity in Product Aggregate
         ReserveProductCommand rpc = ReserveProductCommand.builder()
@@ -63,12 +68,13 @@ public class OrderSaga {
 
     // Share commom class.
     @SagaEventHandler(associationProperty = "orderId")
-    public void orderCreateEvent(ProductReserveEvent productReserveEvent) {
+    public void handle(ProductReserveEvent productReserveEvent) {
         // Roi sao nua?
         log.info("  // Roi sao nua?");
         log.info("pro ID " + productReserveEvent.getProductId() );
         log.info("order id " + productReserveEvent.getOrderId() );
         log.info(" Quantity " + productReserveEvent.getQuantity());
+        String orderId = productReserveEvent.getOrderId();
 
         FetchUserPaymentDetailsQuery queryUserPayment =
                 new FetchUserPaymentDetailsQuery();
@@ -92,15 +98,15 @@ public class OrderSaga {
 
         ProcessPaymentCommand processPaymentCommand =
                 ProcessPaymentCommand.builder()
-                        .paymentId(UUID.randomUUID().toString())
-                        .orderId(userPayment.getUserId())
+                        .paymentId("payment" +UUID.randomUUID().toString())
+                        .orderId(orderId)
                         .paymentDetails(userPayment.getPaymentDetails())
                         .build();
 
         String result = null;
         try {
-             result = commandGateway.sendAndWait(processPaymentCommand, 10, TimeUnit.SECONDS);
-        }catch (CommandExecutionException e){
+             result = commandGateway.sendAndWait(processPaymentCommand);
+        }catch (Exception e){
             log.error(e.getMessage());
             // Compensation here
             log.info("need to compensation here");
@@ -109,8 +115,29 @@ public class OrderSaga {
         if(result == null){
             log.info("need to compensation here 2");
         }
-
+        log.info("DONE commandGateway.sendAndWait(processPaymentCommand, 20, TimeUnit.SECONDS");
 
     }
+    // Thay viet
+
+
+    @SagaEventHandler(associationProperty="orderId")
+    public void handle(PaymentProcessEvent paymentProcessEvent) {
+        log.info("Vao duoc roi  public void handle(PaymentProcessEvent paymentProcessEvent) ");
+               // Send an ApproveOrderCommand
+        ApproveOrderCommand approveOrderCommand =
+                new ApproveOrderCommand(paymentProcessEvent.getOrderId());
+
+        commandGateway.send(approveOrderCommand);
+    }
+
+
+    @EndSaga
+    @SagaEventHandler(associationProperty = "orderId")
+    public void handle(OrderApproveEvent orderApproveEvent){
+      log.info("Finished OrderApproveEvent");
+      SagaLifecycle.end();
+    }
+
 
 }

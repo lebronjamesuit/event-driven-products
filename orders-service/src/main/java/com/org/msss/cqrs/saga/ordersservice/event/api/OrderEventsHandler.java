@@ -8,6 +8,8 @@ import org.axonframework.eventhandling.EventHandler;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @RequiredArgsConstructor
 @Component
 @ProcessingGroup("order-group")
@@ -20,6 +22,19 @@ public class OrderEventsHandler {
         System.out.println(orderCreateEvent.toString());
         OrderEntity entity = new OrderEntity();
         BeanUtils.copyProperties(orderCreateEvent, entity);
+        orderRepository.save(entity);
+    }
+
+
+    // Handle Approve Order
+    @EventHandler
+    public void handleApproveOrder(OrderApproveEvent orderApproveEvent){
+        Optional<OrderEntity> optionalOrderEntity = orderRepository.findById(orderApproveEvent.getOrderId());
+        if(optionalOrderEntity.isEmpty()){
+            return ;
+        }
+        OrderEntity entity = optionalOrderEntity.get();
+        entity.setOrderStatus(orderApproveEvent.getOrderStatus());
         orderRepository.save(entity);
     }
 }
