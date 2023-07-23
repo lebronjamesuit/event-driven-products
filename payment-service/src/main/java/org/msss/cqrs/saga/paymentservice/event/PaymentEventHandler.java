@@ -1,6 +1,5 @@
 package org.msss.cqrs.saga.paymentservice.event;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
 import org.msss.cqrs.saga.paymentservice.dao.PaymentEntity;

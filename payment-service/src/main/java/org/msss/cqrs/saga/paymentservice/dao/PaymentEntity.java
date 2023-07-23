@@ -13,6 +13,6 @@ import lombok.RequiredArgsConstructor;
 public class PaymentEntity {
 
     @Id
-    private  String paymentId;
-    private  String orderId;
+    private String paymentId;
+    private String orderId;
 }

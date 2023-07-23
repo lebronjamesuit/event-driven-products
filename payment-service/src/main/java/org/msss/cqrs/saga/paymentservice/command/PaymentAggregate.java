@@ -1,6 +1,5 @@
 package org.msss.cqrs.saga.paymentservice.command;
 
-import lombok.Data;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
@@ -17,20 +16,21 @@ public class PaymentAggregate {
 
     private String orderId;
 
-    public PaymentAggregate() { }
+    public PaymentAggregate() {
+    }
 
     @CommandHandler
-    public PaymentAggregate(ProcessPaymentCommand processPaymentCommand){
+    public PaymentAggregate(ProcessPaymentCommand processPaymentCommand) {
 
-        if(processPaymentCommand.getPaymentDetails() == null) {
+        if (processPaymentCommand.getPaymentDetails() == null) {
             throw new IllegalArgumentException("Missing payment details");
         }
 
-        if(processPaymentCommand.getOrderId() == null) {
+        if (processPaymentCommand.getOrderId() == null) {
             throw new IllegalArgumentException("Missing orderId");
         }
 
-        if(processPaymentCommand.getPaymentId() == null) {
+        if (processPaymentCommand.getPaymentId() == null) {
             throw new IllegalArgumentException("Missing paymentId");
         }
 
@@ -39,7 +39,7 @@ public class PaymentAggregate {
     }
 
     @EventSourcingHandler
-    protected void on(PaymentProcessEvent paymentProcessedEvent){
+    protected void on(PaymentProcessEvent paymentProcessedEvent) {
         this.paymentId = paymentProcessedEvent.getPaymentId();
         this.orderId = paymentProcessedEvent.getOrderId();
     }

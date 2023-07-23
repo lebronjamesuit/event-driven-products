@@ -12,7 +12,7 @@ public class AxonConfigSecurity {
     public XStream xStream() {
         XStream xStream = new XStream();
 
-        xStream.allowTypesByWildcard(new String[] {
+        xStream.allowTypesByWildcard(new String[]{
                 "org.msss.cqrs.saga.**"
 
         });

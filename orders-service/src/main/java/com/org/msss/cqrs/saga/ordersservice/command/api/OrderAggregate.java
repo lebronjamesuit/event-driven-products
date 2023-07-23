@@ -3,6 +3,7 @@ package com.org.msss.cqrs.saga.ordersservice.command.api;
 
 import com.org.msss.cqrs.saga.ordersservice.event.api.OrderApproveEvent;
 import com.org.msss.cqrs.saga.ordersservice.event.api.OrderCreateEvent;
+import com.org.msss.cqrs.saga.ordersservice.event.api.OrderRejectEvent;
 import lombok.Data;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.config.ProcessingGroup;
@@ -10,6 +11,7 @@ import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.spring.stereotype.Aggregate;
+import org.msss.cqrs.saga.sharedcommon.command.RejectOrderCommand;
 import org.springframework.beans.BeanUtils;
 
 @Data
@@ -18,18 +20,21 @@ import org.springframework.beans.BeanUtils;
 public class OrderAggregate {
 
     @AggregateIdentifier
-    private  String orderId;
-    private  String userId;
-    private  String productId;
-    private  int quantity;
-    private  String addressId;
-    private  OrderStatus orderStatus;
+    private String orderId;
+    private String userId;
+    private String productId;
+    private int quantity;
+    private String addressId;
+    private OrderStatus orderStatus;
 
-    public OrderAggregate(){};
+    public OrderAggregate() {
+    }
+
+    ;
 
     // Handle Create Order
     @CommandHandler
-    public OrderAggregate (CreateOrderCommand createOrderCommand){
+    public OrderAggregate(CreateOrderCommand createOrderCommand) {
         //OrderCreateEvent
         OrderCreateEvent orderCreateEvent = new OrderCreateEvent();
         BeanUtils.copyProperties(createOrderCommand, orderCreateEvent);
@@ -37,7 +42,7 @@ public class OrderAggregate {
     }
 
     @EventSourcingHandler
-    public void on(OrderCreateEvent orderCreateEvent){
+    public void on(OrderCreateEvent orderCreateEvent) {
         this.orderId = orderCreateEvent.getOrderId();
         this.userId = orderCreateEvent.getUserId();
         this.productId = orderCreateEvent.getProductId();
@@ -55,9 +60,26 @@ public class OrderAggregate {
     }
 
     @EventSourcingHandler
-    public void on(OrderApproveEvent orderApproveEvent){
-        this.orderId =  orderApproveEvent.getOrderId();
+    public void on(OrderApproveEvent orderApproveEvent) {
+        this.orderId = orderApproveEvent.getOrderId();
         this.orderStatus = orderApproveEvent.getOrderStatus();
+    }
+
+
+    // Handel reject order comamnd
+    @CommandHandler
+    public void handleApproveOrder(RejectOrderCommand command) {
+        OrderRejectEvent event = OrderRejectEvent.builder()
+                .orderId(command.getOrderId())
+                .reason(command.getReason())
+                .build();
+        AggregateLifecycle.apply(event);
+    }
+
+    @EventSourcingHandler
+    public void on(OrderRejectEvent event) {
+        this.orderId = event.getOrderId();
+        this.orderStatus = event.getOrderStatus(); // Immutable value is rejected
     }
 
 }

@@ -19,7 +19,7 @@ public class CommonException {
         return new ResponseEntity<ErrorMessage>(errorMessage, HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(value =  {Exception.class})
+    @ExceptionHandler(value = {Exception.class})
     public ResponseEntity<ErrorMessage> handleExceptionChung(Exception ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(LocalDateTime.now(),
                 ex.getMessage(), request.getDescription(false));
@@ -27,20 +27,19 @@ public class CommonException {
     }
 
 
-    @ExceptionHandler(value =  {ArrayIndexOutOfBoundsException.class})
+    @ExceptionHandler(value = {ArrayIndexOutOfBoundsException.class})
     public ResponseEntity<ErrorMessage> testIfEventHandlerIsHere(ArrayIndexOutOfBoundsException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(LocalDateTime.now(),
                 ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<ErrorMessage>(errorMessage, HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(value =  {CommandExecutionException.class})
+    @ExceptionHandler(value = {CommandExecutionException.class})
     public ResponseEntity<ErrorMessage> testCommandExecutionException(CommandExecutionException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(LocalDateTime.now(),
                 ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<ErrorMessage>(errorMessage, HttpStatus.UNAUTHORIZED);
     }
-
 
 
 }

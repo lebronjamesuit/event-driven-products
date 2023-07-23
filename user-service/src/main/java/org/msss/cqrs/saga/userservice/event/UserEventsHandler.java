@@ -11,7 +11,7 @@ public class UserEventsHandler {
 
 
     @QueryHandler
-    public UserPayment queryPayment (FetchUserPaymentDetailsQuery fetchQuery){
+    public UserPayment queryPayment(FetchUserPaymentDetailsQuery fetchQuery) {
         PaymentDetails paymentDetails = PaymentDetails.builder()
                 .cardNumber("123Card")
                 .cvv("123")

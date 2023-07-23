@@ -8,6 +8,6 @@ import java.util.Optional;
 @Repository
 public interface ProductLookUpRepo extends JpaRepository<ProductLookUpEntity, String> {
 
-    Optional <ProductLookUpEntity> findByProductIdOrTitle(String productId, String title);
+    Optional<ProductLookUpEntity> findByProductIdOrTitle(String productId, String title);
 
 }

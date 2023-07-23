@@ -2,7 +2,6 @@ package com.org.msss.cqrs.saga.ordersservice.command.api;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.Setter;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
 @Data

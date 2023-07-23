@@ -15,7 +15,7 @@ public class CreateProductRestModel {
     @Length(min = 3)
     private String title;
 
-    @Min(value = 1,  message = "Price is bigger than 0")
+    @Min(value = 1, message = "Price is bigger than 0")
     private BigDecimal price;
 
     @Min(value = 1, message = "quantity must be greater than 0")
