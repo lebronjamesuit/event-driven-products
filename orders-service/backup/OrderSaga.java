@@ -4,7 +4,8 @@ import com.org.msss.cqrs.saga.ordersservice.command.api.ApproveOrderCommand;
 import com.org.msss.cqrs.saga.ordersservice.event.api.OrderApproveEvent;
 import com.org.msss.cqrs.saga.ordersservice.event.api.OrderCreateEvent;
 import com.org.msss.cqrs.saga.ordersservice.event.api.OrderRejectEvent;
-import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.commandhandling.CommandMessage;
@@ -12,12 +13,14 @@ import org.axonframework.commandhandling.CommandResultMessage;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.deadline.DeadlineManager;
 import org.axonframework.deadline.annotation.DeadlineHandler;
+import org.axonframework.messaging.Scope;
 import org.axonframework.messaging.responsetypes.ResponseTypes;
 import org.axonframework.modelling.saga.EndSaga;
 import org.axonframework.modelling.saga.SagaEventHandler;
 import org.axonframework.modelling.saga.StartSaga;
 import org.axonframework.queryhandling.QueryGateway;
 import org.axonframework.spring.stereotype.Saga;
+import org.checkerframework.checker.units.qual.A;
 import org.msss.cqrs.saga.sharedcommon.command.CancelProductReservationCommand;
 import org.msss.cqrs.saga.sharedcommon.command.ProcessPaymentCommand;
 import org.msss.cqrs.saga.sharedcommon.command.RejectOrderCommand;
@@ -28,34 +31,25 @@ import org.msss.cqrs.saga.sharedcommon.event.ProductReserveEvent;
 import org.msss.cqrs.saga.sharedcommon.payment.UserPayment;
 import org.msss.cqrs.saga.sharedcommon.query.FetchUserPaymentDetailsQuery;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
-
-@NoArgsConstructor
+@AllArgsConstructor
 @Slf4j
 @Saga
 public class OrderSaga {
 
-    // Transient means it's not part of the Saga serialization process of Axon
-    private transient final String DEADLINE_NAME = "deadline-payment";
-    @Autowired
-    private transient CommandGateway commandGateway;
-    @Autowired
-    private transient QueryGateway queryGateway;
-    @Autowired
-    private transient DeadlineManager deadlineManager;
-    // I want to store this field with Saga in JpaSagaStore,
-    private String scheduleId = "";
 
-    public OrderSaga(final CommandGateway commandGateway, final QueryGateway queryGateway, final DeadlineManager deadlineManager) {
-        this.commandGateway = commandGateway;
-        this.queryGateway = queryGateway;
-        this.deadlineManager = deadlineManager;
-    }
+    private transient CommandGateway commandGateway;
+    private transient QueryGateway queryGateway;
+    //private transient DeadlineManager deadlineManager;
+
+   // private transient final String DEADLINE_NAME = "deadline-payment";
+   // private transient String scheduleId = "";
 
     @StartSaga
     @SagaEventHandler(associationProperty = "orderId")
@@ -98,8 +92,9 @@ public class OrderSaga {
 
         // I'm afraid payment process will take too long, so I wrote a deadline
         // When test it, do not start payment-service
-        scheduleId = this.deadlineManager.schedule(Duration.of(10, ChronoUnit.SECONDS), DEADLINE_NAME, productReserveEvent);
-        log.info("create + scheduleId: " + scheduleId);
+       //  scheduleId = this.deadlineManager.schedule(Duration.of(10, ChronoUnit.SECONDS), DEADLINE_NAME, productReserveEvent);
+
+
         ProcessPaymentCommand processPaymentCommand =
                 ProcessPaymentCommand.builder()
                         .paymentId("payment" + UUID.randomUUID())
@@ -122,9 +117,10 @@ public class OrderSaga {
 
     @SagaEventHandler(associationProperty = "orderId")
     public void handle(PaymentProcessEvent paymentProcessEvent) {
+        // If payment microservice is called then cancel deadline
+      //  deadlineManager.cancelSchedule(this.DEADLINE_NAME, this.scheduleId);
+
         log.info("PaymentProcessEvent paymentProcessEvent");
-        cancelDeadline();
-        log.info("PaymentProcessEvent + scheduleId: " + scheduleId);
         ApproveOrderCommand approveOrderCommand =
                 new ApproveOrderCommand(paymentProcessEvent.getOrderId());
 
@@ -137,7 +133,7 @@ public class OrderSaga {
         log.info("Finished OrderApproveEvent");
     }
 
-    // new saga lifecycle
+    // This is a new saga lifecycle
     @SagaEventHandler(associationProperty = "orderId")
     public void handle(ProductCancelReservationEvent event) {
         log.info("This is after ProductCancelReservationEvent, do the reject order command");
@@ -153,9 +149,8 @@ public class OrderSaga {
     }
 
     private String cancelProductReservation(String reason, ProductReserveEvent event) {
-
         // if is there any reason the product cannot reserved, then the deadline should be cancel as well
-        cancelDeadline();
+     //   deadlineManager.cancelSchedule(this.DEADLINE_NAME, this.scheduleId);
 
         CancelProductReservationCommand can = CancelProductReservationCommand.builder()
                 .productId(event.getProductId())
@@ -170,20 +165,11 @@ public class OrderSaga {
 
     }
 
-    private void cancelDeadline() {
-        log.info("cancelDeadline + scheduleId: " + scheduleId);
-        if (StringUtils.hasText(scheduleId)) {
-            deadlineManager.cancelSchedule(this.DEADLINE_NAME, this.scheduleId);
-            scheduleId = "";
-        }
-    }
 
-    // After command bus send the command, It waits a certain time
-    // which is 10 seconds in this case, Deadline schedule will trigger
-    @DeadlineHandler(deadlineName = DEADLINE_NAME)
+   // @DeadlineHandler()
     public void onHandleDeadlinePayment(ProductReserveEvent e) {
-        log.info(" Cannot reach payment, start compensation process");
-        cancelProductReservation("Payment process timeout", e);
+        log.info(" onHandleDeadlinePayment(ProductReserveEvent e)");
+        cancelProductReservation("Payment process timeout",e);
     }
 
 }
