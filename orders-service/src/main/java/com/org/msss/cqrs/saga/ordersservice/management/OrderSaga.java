@@ -4,6 +4,8 @@ import com.org.msss.cqrs.saga.ordersservice.command.api.ApproveOrderCommand;
 import com.org.msss.cqrs.saga.ordersservice.event.api.OrderApproveEvent;
 import com.org.msss.cqrs.saga.ordersservice.event.api.OrderCreateEvent;
 import com.org.msss.cqrs.saga.ordersservice.event.api.OrderRejectEvent;
+import com.org.msss.cqrs.saga.ordersservice.model.OrderSummary;
+import com.org.msss.cqrs.saga.ordersservice.query.api.FindOrderQuery;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandCallback;
@@ -16,7 +18,7 @@ import org.axonframework.messaging.responsetypes.ResponseTypes;
 import org.axonframework.modelling.saga.EndSaga;
 import org.axonframework.modelling.saga.SagaEventHandler;
 import org.axonframework.modelling.saga.StartSaga;
-import org.axonframework.queryhandling.QueryGateway;
+import org.axonframework.queryhandling.*;
 import org.axonframework.spring.stereotype.Saga;
 import org.msss.cqrs.saga.sharedcommon.command.CancelProductReservationCommand;
 import org.msss.cqrs.saga.sharedcommon.command.ProcessPaymentCommand;
@@ -30,9 +32,12 @@ import org.msss.cqrs.saga.sharedcommon.query.FetchUserPaymentDetailsQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 
 @NoArgsConstructor
@@ -48,6 +53,10 @@ public class OrderSaga {
     private transient QueryGateway queryGateway;
     @Autowired
     private transient DeadlineManager deadlineManager;
+
+    @Autowired
+    private transient QueryUpdateEmitter queryUpdateEmitter;
+
     // I want to store this field with Saga in JpaSagaStore,
     private String scheduleId = "";
 
@@ -76,6 +85,8 @@ public class OrderSaga {
                 }
             }
         });
+
+
     }
 
     @SagaEventHandler(associationProperty = "orderId")
@@ -135,6 +146,9 @@ public class OrderSaga {
     @SagaEventHandler(associationProperty = "orderId")
     public void handle(OrderApproveEvent orderApproveEvent) {
         log.info("Finished OrderApproveEvent");
+        queryUpdateEmitter.emit(FindOrderQuery.class, query -> true,
+                new OrderSummary(orderApproveEvent.getOrderId(), orderApproveEvent.getOrderStatus(), "succeed"));
+
     }
 
     // new saga lifecycle
@@ -150,6 +164,8 @@ public class OrderSaga {
     @SagaEventHandler(associationProperty = "orderId")
     public void handle(OrderRejectEvent event) {
         log.info("OrderRejectEvent method");
+        queryUpdateEmitter.emit(FindOrderQuery.class, query -> true,
+                new OrderSummary(event.getOrderId(), event.getOrderStatus(), event.getReason()));
     }
 
     private String cancelProductReservation(String reason, ProductReserveEvent event) {
