@@ -144,11 +144,11 @@ public class OrderSaga {
 
     @EndSaga
     @SagaEventHandler(associationProperty = "orderId")
-    public void handle(OrderApproveEvent orderApproveEvent) {
+    public void handle(OrderApproveEvent event) {
         log.info("Finished OrderApproveEvent");
-        queryUpdateEmitter.emit(FindOrderQuery.class, query -> true,
-                new OrderSummary(orderApproveEvent.getOrderId(), orderApproveEvent.getOrderStatus(), "succeed"));
-
+        // after finished saga, I need to emit for the controller
+        queryUpdateEmitter.emit(FindOrderQuery.class, p -> true,
+                new OrderSummary(event.getOrderId(), event.getOrderStatus(),""));
     }
 
     // new saga lifecycle
@@ -164,8 +164,11 @@ public class OrderSaga {
     @SagaEventHandler(associationProperty = "orderId")
     public void handle(OrderRejectEvent event) {
         log.info("OrderRejectEvent method");
-        queryUpdateEmitter.emit(FindOrderQuery.class, query -> true,
-                new OrderSummary(event.getOrderId(), event.getOrderStatus(), event.getReason()));
+        // after finished saga, I need to emit for the controller
+        queryUpdateEmitter.emit(FindOrderQuery.class, p -> true,
+                new OrderSummary(event.getOrderId(), event.getOrderStatus(),""));
+
+        queryUpdateEmitter.complete(FindOrderQuery.class, p -> true);
     }
 
     private String cancelProductReservation(String reason, ProductReserveEvent event) {

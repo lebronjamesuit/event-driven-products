@@ -1,6 +1,5 @@
 package com.org.msss.cqrs.saga.ordersservice.command.api;
 
-import com.org.msss.cqrs.saga.ordersservice.core.OrderEntity;
 import com.org.msss.cqrs.saga.ordersservice.model.OrderSummary;
 import com.org.msss.cqrs.saga.ordersservice.query.api.FindOrderQuery;
 import lombok.RequiredArgsConstructor;
@@ -38,16 +37,14 @@ public class OrderCommandController {
                 .addressId(orderRestModel.getAddressId())
                 .orderStatus(orderRestModel.getOrderStatus()).build();
 
-        String resultId = commandGateway.sendAndWait(createOrderCommand);
+        commandGateway.sendAndWait(createOrderCommand);
 
-        // Subscribe query here
-        SubscriptionQueryResult<OrderSummary, OrderSummary> subsResult =
-                queryGateway.subscriptionQuery(
-                new FindOrderQuery(orderId),
-                ResponseTypes.instanceOf(OrderSummary.class),
-                ResponseTypes.instanceOf(OrderSummary.class));
+        SubscriptionQueryResult<OrderSummary, OrderSummary> result =
+                queryGateway.subscriptionQuery(new FindOrderQuery(orderId),
+                        ResponseTypes.instanceOf(OrderSummary.class),
+                        ResponseTypes.instanceOf(OrderSummary.class));
 
-        return subsResult.updates().blockFirst();
+        return result.updates().blockFirst();
     }
 
 }
