@@ -82,6 +82,11 @@ public class OrderSaga {
                                  CommandResultMessage<? extends Object> commandResultMessage) {
                 if (commandResultMessage.isExceptional()) {
                     log.info("HEY, When ReserveProductCommand is done, report to the callback here");
+                    RejectOrderCommand command = new RejectOrderCommand(orderCreateEvent.getOrderId(),
+                            commandResultMessage.exceptionResult().getMessage());
+
+                    commandGateway.send(command);
+                    return;
                 }
             }
         });
