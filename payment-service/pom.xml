@@ -77,8 +77,27 @@
                         </exclude>
                     </excludes>
                 </configuration>
+               
             </plugin>
+
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <image>
+                         <name>jamesfloatingmarket1508/ddd-${project.artifactId}:${project.version}</name>
+                        <env>
+                            <BP_JVM_VERSION>${java.version}</BP_JVM_VERSION>
+                        </env>
+                    </image>
+                    <pullPolicy>IF_NOT_PRESENT</pullPolicy>
+                </configuration>
+            </plugin>
+        
+
         </plugins>
     </build>
 
+   
 </project>

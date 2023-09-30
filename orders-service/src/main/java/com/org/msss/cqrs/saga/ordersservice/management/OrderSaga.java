@@ -154,6 +154,7 @@ public class OrderSaga {
         // after finished saga, I need to emit for the controller
         queryUpdateEmitter.emit(FindOrderQuery.class, p -> true,
                 new OrderSummary(event.getOrderId(), event.getOrderStatus(),""));
+
     }
 
     // new saga lifecycle
