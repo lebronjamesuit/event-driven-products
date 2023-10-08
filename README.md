@@ -1,4 +1,10 @@
-# 1. Microservices Architecture Overview in the Project
+## Next challenge 
+
+Working directory: Use dockers-compose to combine Axon Server with our 4 services (products, payments, orders and users) for 1 click starting enviroment.
+
+Testing server: Deploy microservies to AWS without the need of AWS kubernetes
+
+# 1. Architecture Overview in the Project
 
 
 <img width="702" alt="image" src="https://github.com/lebronjamesuit/event-driven-products/assets/11584601/eb82c1e3-6a7a-4bbd-a257-723dd245c0a9">
